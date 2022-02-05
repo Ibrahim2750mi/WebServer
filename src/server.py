@@ -45,7 +45,7 @@ def send_501_error(visitor: socket.socket) -> None:
     visitor.send(resp.encode())
 
 
-def parse_csv_files(file_dir: str) -> List[str, ...]:
+def parse_csv_files(file_dir: str) -> List[str]:
     with open(file_dir, "r") as f:
         un_parsed_all_media_types = f.readlines()
 
@@ -62,8 +62,8 @@ server_socket.bind((SERVER_HOST, SERVER_PORT))
 server_socket.listen(1)
 print('Listening on port %s ...' % SERVER_PORT)
 
-parsed_image_extensions = parse_csv_files("image.csv")
-parsed_text_extensions = parse_csv_files("text.csv")
+parsed_image_extensions = parse_csv_files("assets/image.csv")
+parsed_text_extensions = parse_csv_files("assets/text.csv")
 
 if __name__ == '__main__':
     while True:
