@@ -45,6 +45,11 @@ def send_501_error(visitor: socket.socket) -> None:
     visitor.send(resp.encode())
 
 
+def send_406_error(visitor: socket.socket) -> None:
+    resp = "HTTP/1.1 406 Type not supported\r\n"
+    visitor.send(resp.encode())
+
+
 def parse_csv_files(file_dir: str) -> List[str]:
     with open(file_dir, "r") as f:
         un_parsed_all_media_types = f.readlines()
@@ -63,7 +68,11 @@ server_socket.listen(1)
 print('Listening on port %s ...' % SERVER_PORT)
 
 parsed_image_extensions = parse_csv_files("assets/image.csv")
+parsed_image_extensions.append("ico")
 parsed_text_extensions = parse_csv_files("assets/text.csv")
+parsed_video_extensions = parse_csv_files("assets/video.csv")
+parsed_audio_extensions = parse_csv_files("assets/audio.csv")
+parsed_audio_extensions.append("mp3")
 
 if __name__ == '__main__':
     while True:
@@ -106,6 +115,7 @@ if __name__ == '__main__':
         elif filename.split(".")[-1] in parsed_image_extensions:
             if is_x_extension(filename, extension="ico"):
                 response += "Content-Type: image/x-icon\r\n"
+                print("called")
                 read_and_respond_media(filename, response, client_connection)
             elif is_x_extension(filename, extension="jpeg"):
                 response += "Content-Type: image/jpeg\r\n"
@@ -118,6 +128,18 @@ if __name__ == '__main__':
                 read_and_respond_media(filename, response, client_connection)
             else:
                 send_501_error(client_connection)
+        elif filename.split(".")[-1] in parsed_video_extensions:
+            if is_x_extension(filename, extension="mp4"):
+                response += "Content-Type: video/mp4\r\n"
+                read_and_respond_media(filename, response, client_connection)
+            else:
+                send_501_error(client_connection)
+        elif filename.split(".")[-1] in parsed_audio_extensions:
+            if is_x_extension(filename, extension="mp3"):
+                response += "Content-Type: audio/mpeg\r\n"
+                read_and_respond_media(filename, response, client_connection)
+            else:
+                send_501_error(client_connection)
         else:
-            send_404_error(client_connection)
+            send_406_error(client_connection)
         client_connection.close()
